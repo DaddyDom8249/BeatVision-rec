@@ -1,0 +1,12 @@
+[submodule "sources/BeatVision"]
+	path = sources/BeatVision
+	url = https://github.com/DaddyDom8249/BeatVision.git
+[submodule "sources/BeatVision-arena"]
+	path = sources/BeatVision-arena
+	url = https://github.com/DaddyDom8249/BeatVision-arena.git
+[submodule "sources/BeatVision-recovery"]
+	path = sources/BeatVision-recovery
+	url = https://github.com/DaddyDom8249/BeatVision-recovery.git
+[submodule "sources/BeatVision-Test"]
+	path = sources/BeatVision-Test
+	url = https://github.com/DaddyDom8249/BeatVision-Test.git
