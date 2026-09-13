@@ -33,10 +33,8 @@ for (const name of ['frontend', 'backend', 'cloudflare-worker', 'scripts', 'desi
   if (existsSync(src)) await cp(src, path.join(out, name), { recursive: true });
 }
 
-// Arena is integrated as the provider/motion execution layer. Keeping it under
-// integrations avoids silently replacing the proven Recovery application while
-// making every provider contract and gateway implementation available to the
-// integration build.
+// Arena provider code is preserved under integrations as an optional reference.
+// It is not silently substituted for the active Recovery provider path.
 const arenaOut = path.join(out, 'integrations', 'arena-provider');
 await mkdir(arenaOut, { recursive: true });
 for (const name of ['worker', 'provider-contracts.js', 'animation-bridge.js', 'motion-bridge.js', 'log-guard.js']) {
@@ -96,7 +94,7 @@ await writeFile(path.join(out, 'integration-manifest.json'), JSON.stringify({
   commits,
   components: {
     workflow: 'Recovery frontend/backend/worker',
-    providerExecution: 'Arena worker/provider contracts integrated under integrations/arena-provider',
+    providerExecution: 'Recovery provider path is active; Arena worker/provider contracts are preserved as optional integration references',
     presentationReferences: 'BeatVision-Test documentation under integrations/references',
     originalProductionReference: 'BeatVision preserved as immutable submodule'
   },
@@ -106,6 +104,8 @@ await writeFile(path.join(out, 'integration-manifest.json'), JSON.stringify({
   },
   policy: 'Source repositories are read-only; integration changes belong in BeatVision-rec.'
 }, null, 2) + '\n');
+
+await import('./integration-overrides.mjs');
 
 console.log('BeatVision-rec assembled into ./app');
 console.log(`Recovery: ${commits.recovery}`);
