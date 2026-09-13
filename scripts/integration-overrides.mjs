@@ -89,6 +89,17 @@ await patch('pages/ProjectWorkflow.jsx', [
   ],
 ]);
 
+await patch('pages/Settings.jsx', [
+  [
+    '    what: "Turns approved scene prompts into cinematic scene images. Provider: Google Gemini Nano Banana.",\n    cost: "Uses Emergent LLM credits when connected.",',
+    '    what: "Turns approved scene prompts into cinematic scene images. The connected provider is shown below.",\n    cost: "Cost is reported by the connected provider.",',
+  ],
+  [
+    '    what: "Uses your uploaded reference photos to guide each generated scene image. Provider: Google Gemini Nano Banana.",\n    cost: "Uses Emergent LLM credits when connected.",',
+    '    what: "Uses selected reference metadata or provider-supported reference inputs to guide each scene image. The connected provider is shown below.",\n    cost: "Reference handling and cost are reported by the connected provider.",',
+  ],
+]);
+
 const manifestPath = path.join(root, 'app', 'integration-manifest.json');
 let manifest = await readFile(manifestPath, 'utf8');
 manifest = manifest.replace(
