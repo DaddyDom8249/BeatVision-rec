@@ -22,10 +22,6 @@ await patch('pages/CreateProject.jsx', [
     'import { newProject, upsertProject, StorageQuotaError } from "@/lib/storage";\nimport { saveStoredAudioFile, removeStoredAudioFile, validateAudioFile } from "@/lib/audioStorage";',
   ],
   [
-    'import React, { useState } from "react";',
-    'import React, { useState } from "react";',
-  ],
-  [
     '  const [form, setForm] = useState({',
     '  const [audioFile, setAudioFile] = useState(null);\n  const [audioError, setAudioError] = useState("");\n\n  const [form, setForm] = useState({',
   ],
@@ -42,8 +38,8 @@ await patch('pages/CreateProject.jsx', [
     '      console.error(error);\n      if (project?.id) {\n        try { await removeStoredAudioFile(project.id); } catch {}\n      }\n      if (audioFile) setAudioError(error.message || "The selected song could not be stored.");\n\n      if (',
   ],
   [
-    '        <div>\n            <label className="bv-label">Lyrics</label>',
-    '        <div>\n          <label className="bv-label">Song Audio (optional)</label>\n          <div className="text-xs text-neutral-500 font-body mb-3">\n            Add the original song once. BeatVision stores the audio locally in the browser so the export step can reuse it.\n          </div>\n          <label className="btn-ghost inline-flex items-center gap-2 cursor-pointer">\n            Choose Song\n            <input\n              type="file"\n              accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac"\n              className="hidden"\n              onChange={handleAudioChange}\n            />\n          </label>\n          {audioFile && (\n            <div className="mt-3 text-sm font-body text-neutral-300">\n              {audioFile.name} <span className="text-neutral-500">({Math.round(audioFile.size / 1024 / 1024 * 10) / 10} MB)</span>\n            </div>\n          )}\n          {audioError && <div className="mt-2 text-sm text-[#F87171] font-body">{audioError}</div>}\n        </div>\n\n        <div>\n            <label className="bv-label">Lyrics</label>',
+    '        <div>\n          <label className="bv-label">Lyrics</label>',
+    '        <div>\n          <label className="bv-label">Song Audio (optional)</label>\n          <div className="text-xs text-neutral-500 font-body mb-3">\n            Add the original song once. BeatVision stores the audio locally in the browser so the export step can reuse it.\n          </div>\n          <label className="btn-ghost inline-flex items-center gap-2 cursor-pointer">\n            Choose Song\n            <input\n              type="file"\n              accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac"\n              className="hidden"\n              onChange={handleAudioChange}\n            />\n          </label>\n          {audioFile && (\n            <div className="mt-3 text-sm font-body text-neutral-300">\n              {audioFile.name} <span className="text-neutral-500">({Math.round(audioFile.size / 1024 / 1024 * 10) / 10} MB)</span>\n            </div>\n          )}\n          {audioError && <div className="mt-2 text-sm text-[#F87171] font-body">{audioError}</div>}\n        </div>\n\n        <div>\n          <label className="bv-label">Lyrics</label>',
   ],
 ]);
 
