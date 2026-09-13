@@ -65,8 +65,8 @@ await patch('components/MotionExportPanel.jsx', [
     '      setAudioDuration(duration);\n      const metadata = await saveStoredAudioFile(project.id, file, { duration });\n      updateProject(project.id, {\n        audioMetadata: {\n          name: file.name,\n          type: file.type || "audio/*",\n          size: file.size,\n          duration,\n          storageType: metadata.storageType,\n        },\n      });\n    } catch (error) {',
   ],
   [
-    '    clearRenderedVideo();\n    if (fileInputRef.current) fileInputRef.current.value = "";',
-    '    clearRenderedVideo();\n    if (fileInputRef.current) fileInputRef.current.value = "";\n    void removeStoredAudioFile(project.id);\n    updateProject(project.id, { audioMetadata: null });',
+    '  function clearAudioSelection() {\n    audioSelectionIdRef.current += 1;\n    setAudioFile(null);\n    setAudioDuration(null);\n    setAudioError("");\n    setRenderError("");\n    clearRenderedVideo();\n    if (fileInputRef.current) fileInputRef.current.value = "";\n  }',
+    '  function clearAudioSelection() {\n    audioSelectionIdRef.current += 1;\n    setAudioFile(null);\n    setAudioDuration(null);\n    setAudioError("");\n    setRenderError("");\n    clearRenderedVideo();\n    if (fileInputRef.current) fileInputRef.current.value = "";\n    void removeStoredAudioFile(project.id);\n    updateProject(project.id, { audioMetadata: null });\n  }',
   ],
   [
     '              BeatVision does not keep large audio files in browser storage. Re-select the original song for each export session.',
