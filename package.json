@@ -1,12 +1,14 @@
 {
   "name": "beatvision-rec",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "description": "Unified BeatVision integration workspace",
   "scripts": {
+    "assemble": "node scripts/assemble.mjs",
+    "audit": "node scripts/audit-integration.mjs",
+    "verify": "node scripts/verify-sources.js && npm run assemble && npm run audit",
     "start": "node server.js",
-    "dev": "node server.js",
-    "verify": "node scripts/verify-sources.js"
+    "dev": "node server.js"
   },
   "engines": {
     "node": ">=18"
