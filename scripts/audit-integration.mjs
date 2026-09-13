@@ -35,11 +35,24 @@ const required = [
 ];
 for (const item of required) check(`assembled ${item}`, existsSync(path.join(app, item)));
 
+const backendServer = path.join(app, 'backend', 'server.py');
+if (existsSync(backendServer)) {
+  const backendText = readFileSync(backendServer, 'utf8');
+  check('backend treats Emergent SDK as optional', backendText.includes('except ImportError:') && backendText.includes('LlmChat = None'));
+  check('backend guards missing optional SDK', backendText.includes('Optional Emergent LLM SDK is not installed'));
+}
+const backendRequirements = path.join(app, 'backend', 'requirements.txt');
+if (existsSync(backendRequirements)) {
+  const requirements = readFileSync(backendRequirements, 'utf8');
+  check('backend requirements omit unavailable Emergent SDK', !/^emergentintegrations==/im.test(requirements));
+}
+
 if (existsSync(path.join(app, 'integration-manifest.json'))) {
   try {
     const manifest = JSON.parse(readFileSync(path.join(app, 'integration-manifest.json'), 'utf8'));
     check('manifest identifies Recovery baseline', manifest.activeBaseline === 'BeatVision-recovery');
     check('manifest has all source commits', ['recovery', 'arena', 'test', 'original'].every(k => /^[0-9a-f]{40}$/.test(manifest.commits?.[k] || '')));
+    check('manifest records optional provider hardening', manifest.hardening?.optionalEmergentSdk === true);
   } catch (error) {
     check('manifest JSON', false, String(error));
   }
