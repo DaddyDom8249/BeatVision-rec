@@ -27,6 +27,7 @@ for (const name of ['BeatVision', 'BeatVision-arena', 'BeatVision-recovery', 'Be
 const app = path.join(root, 'app');
 const required = [
   'frontend/package.json',
+  'frontend/src/lib/audioStorage.js',
   'backend',
   'cloudflare-worker/src/index.js',
   'integrations/arena-provider/worker/src/arena-entry.ts',
@@ -47,12 +48,33 @@ if (existsSync(backendRequirements)) {
   check('backend requirements omit unavailable Emergent SDK', !/^emergentintegrations==/im.test(requirements));
 }
 
+const createProject = path.join(app, 'frontend', 'src', 'pages', 'CreateProject.jsx');
+const motionPanel = path.join(app, 'frontend', 'src', 'components', 'MotionExportPanel.jsx');
+const workflow = path.join(app, 'frontend', 'src', 'pages', 'ProjectWorkflow.jsx');
+if (existsSync(createProject)) {
+  const text = readFileSync(createProject, 'utf8');
+  check('project creation stores selected audio', text.includes('saveStoredAudioFile') && text.includes('audioMetadata'));
+}
+if (existsSync(motionPanel)) {
+  const text = readFileSync(motionPanel, 'utf8');
+  check('export reuses stored project audio', text.includes('getStoredAudioFile') && text.includes('saveStoredAudioFile'));
+  check('export can clear stored project audio', text.includes('removeStoredAudioFile'));
+  check('export copy does not claim audio is discarded', !text.includes('does not keep large audio files in browser storage'));
+}
+if (existsSync(workflow)) {
+  const text = readFileSync(workflow, 'utf8');
+  check('generated image source is provider-neutral', text.includes('sourceType: "generated_ai"'));
+  check('generated image reference mode is explicit', text.includes('metadata_prompt_only'));
+  check('stale reference-source label removed', !text.includes('sourceType: "generated_from_reference"'));
+}
+
 if (existsSync(path.join(app, 'integration-manifest.json'))) {
   try {
     const manifest = JSON.parse(readFileSync(path.join(app, 'integration-manifest.json'), 'utf8'));
     check('manifest identifies Recovery baseline', manifest.activeBaseline === 'BeatVision-recovery');
     check('manifest has all source commits', ['recovery', 'arena', 'test', 'original'].every(k => /^[0-9a-f]{40}$/.test(manifest.commits?.[k] || '')));
     check('manifest records optional provider hardening', manifest.hardening?.optionalEmergentSdk === true);
+    check('manifest distinguishes active and optional provider code', manifest.components?.providerExecution?.includes('Recovery provider path is active'));
   } catch (error) {
     check('manifest JSON', false, String(error));
   }
@@ -61,6 +83,7 @@ if (existsSync(path.join(app, 'integration-manifest.json'))) {
 const packageJson = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
 check('root verify script exists', typeof packageJson.scripts?.verify === 'string');
 check('root assemble script exists', typeof packageJson.scripts?.assemble === 'string');
+check('root hygiene script exists', typeof packageJson.scripts?.hygiene === 'string');
 
 console.log('\nBeatVision-rec integration audit');
 for (const result of checks) console.log(`${result.ok ? 'PASS' : 'FAIL'}  ${result.name}${result.detail ? ` — ${result.detail}` : ''}`);
