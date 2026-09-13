@@ -46,5 +46,8 @@ jobs:
       - name: Python syntax audit
         run: python -m compileall -q app/backend
 
+      - name: Frontend code hygiene and language audit
+        run: npm run hygiene
+
       - name: Final integration audit
         run: npm run audit
