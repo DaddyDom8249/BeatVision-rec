@@ -51,6 +51,7 @@ if (existsSync(backendRequirements)) {
 const createProject = path.join(app, 'frontend', 'src', 'pages', 'CreateProject.jsx');
 const motionPanel = path.join(app, 'frontend', 'src', 'components', 'MotionExportPanel.jsx');
 const workflow = path.join(app, 'frontend', 'src', 'pages', 'ProjectWorkflow.jsx');
+const settings = path.join(app, 'frontend', 'src', 'pages', 'Settings.jsx');
 if (existsSync(createProject)) {
   const text = readFileSync(createProject, 'utf8');
   check('project creation stores selected audio', text.includes('saveStoredAudioFile') && text.includes('audioMetadata'));
@@ -66,6 +67,11 @@ if (existsSync(workflow)) {
   check('generated image source is provider-neutral', text.includes('sourceType: "generated_ai"'));
   check('generated image reference mode is explicit', text.includes('metadata_prompt_only'));
   check('stale reference-source label removed', !text.includes('sourceType: "generated_from_reference"'));
+}
+if (existsSync(settings)) {
+  const text = readFileSync(settings, 'utf8');
+  check('provider settings do not hard-code image vendor', !text.includes('Provider: Google Gemini Nano Banana'));
+  check('provider settings explain connected-provider routing', text.includes('The connected provider is shown below.'));
 }
 
 if (existsSync(path.join(app, 'integration-manifest.json'))) {
