@@ -1,4 +1,4 @@
-import { cp, mkdir, rm, writeFile } from 'node:fs/promises';
+import { cp, mkdir, rm, writeFile, readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
@@ -52,6 +52,37 @@ for (const name of ['ARCHITECTURE.md', 'DEMO_READINESS.md', 'PROVIDER_BRIEF.md',
   if (existsSync(src)) await cp(src, path.join(refs, name));
 }
 
+// The Recovery backend historically imported the optional Emergent SDK at
+// module-load time. That makes the whole API fail to boot when the package is
+// unavailable, even though every text-generation route already has a safe
+// deterministic fallback. In the integration build the SDK is therefore
+// optional: absence is treated exactly like an unavailable provider.
+const backendServer = path.join(out, 'backend', 'server.py');
+if (existsSync(backendServer)) {
+  let source = await readFile(backendServer, 'utf8');
+  source = source.replace(
+    'from emergentintegrations.llm.chat import LlmChat, UserMessage, ImageContent',
+    'try:\n    from emergentintegrations.llm.chat import LlmChat, UserMessage, ImageContent\nexcept ImportError:\n    LlmChat = None\n    UserMessage = None\n    ImageContent = None'
+  );
+  source = source.replace(
+    '    if not EMERGENT_LLM_KEY:\n        raise HTTPException(status_code=500, detail="EMERGENT_LLM_KEY not configured on server.")',
+    '    if not EMERGENT_LLM_KEY:\n        raise RuntimeError("EMERGENT_LLM_KEY not configured on server")\n    if LlmChat is None:\n        raise RuntimeError("Optional Emergent LLM SDK is not installed")'
+  );
+  await writeFile(backendServer, source);
+}
+
+const backendRequirements = path.join(out, 'backend', 'requirements.txt');
+if (existsSync(backendRequirements)) {
+  const requirements = await readFile(backendRequirements, 'utf8');
+  await writeFile(
+    backendRequirements,
+    requirements
+      .split(/\r?\n/)
+      .filter((line) => !/^emergentintegrations==/i.test(line.trim()))
+      .join('\n')
+  );
+}
+
 const commits = {
   recovery: git(recovery, ['rev-parse', 'HEAD']),
   arena: git(arena, ['rev-parse', 'HEAD']),
@@ -68,6 +99,10 @@ await writeFile(path.join(out, 'integration-manifest.json'), JSON.stringify({
     providerExecution: 'Arena worker/provider contracts integrated under integrations/arena-provider',
     presentationReferences: 'BeatVision-Test documentation under integrations/references',
     originalProductionReference: 'BeatVision preserved as immutable submodule'
+  },
+  hardening: {
+    optionalEmergentSdk: true,
+    behaviorWhenMissing: 'provider unavailable -> existing deterministic fallback path'
   },
   policy: 'Source repositories are read-only; integration changes belong in BeatVision-rec.'
 }, null, 2) + '\n');
